@@ -1,0 +1,79 @@
+services:
+  db:
+    image: postgres:16-alpine
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  web:
+    build: .
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60"
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "deploy/healthcheck.py"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  mail:
+    build: .
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    command: python manage.py send_ticket_emails --loop
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+  caddy:
+    image: caddy:2-alpine
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    env_file: .env
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - static_data:/srv/static:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  static_data:
+  media_data:
+  caddy_data:
+  caddy_config:

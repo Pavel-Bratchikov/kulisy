@@ -1,0 +1,41 @@
+# Локальное окружение и секреты
+.env
+.env.*
+!.env.example
+venv/
+.*/
+!/.github/
+!/.github/**
+*.pem
+*.key
+id_ed25519*
+id_rsa*
+
+# Python и результаты проверок
+__pycache__/
+*.py[cod]
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# Данные приложения и сборки
+*.sqlite3
+*.sqlite3-*
+media/
+staticfiles/
+backups/
+artifacts/
+kulisy-server.tar.gz
+backup.log
+
+# Редактор и ОС
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.~lock.*
+
+# Исходные материалы вне приложения
+*.pdf
+*.docx

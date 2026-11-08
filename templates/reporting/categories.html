@@ -1,0 +1,1 @@
+<div class="table-scroll"><table><thead><tr><th>Категория</th><th>Зарегистрировались</th><th>Пришли</th><th>Лимит</th></tr></thead><tbody>{% for c in categories %}<tr><td>{{ c.name }}</td><td>{{ c.registered }}</td><td>{{ c.arrived }}</td><td>{{ c.limit }}</td></tr>{% empty %}<tr><td colspan="4">Добавьте категории билетов.</td></tr>{% endfor %}</tbody></table></div>

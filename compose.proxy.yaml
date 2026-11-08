@@ -1,0 +1,7 @@
+# Docker Compose >= 2.24.4. Use only behind a local HTTPS reverse proxy.
+services:
+  caddy:
+    ports: !override
+      - "127.0.0.1:8088:80"
+    volumes:
+      - ./deploy/Caddyfile.proxy:/etc/caddy/Caddyfile:ro
